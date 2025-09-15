@@ -1,0 +1,44 @@
+# Archivos de Python compilados
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Base de datos SQLite (si la usas en desarrollo)
+db.sqlite3
+
+# Archivos de configuración local (como variables de entorno)
+.env
+*.env
+
+# Directorios del entorno virtual
+venv/
+env/
+.venv/
+
+# Archivos de log
+*.log
+
+# Archivos generados por el sistema (macOS y Windows)
+.DS_Store
+Thumbs.db
+
+# Archivos de migraciones
+*/migrations/*
+!*/migrations/__init__.py
+
+# Archivos estáticos generados (si usas collectstatic en producción)
+static/
+
+# Archivos generados por Django (media y archivos temporales)
+media/
+
+# Ignorar archivos relacionados con IDEs o editores (por ejemplo, VS Code, PyCharm)
+.vscode/
+.idea/
+
+# Ignorar archivos específicos de las apps
+miapp/__pycache__/
+carrito/__pycache__/
+
+
