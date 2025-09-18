@@ -10,7 +10,7 @@ class Usuario(AbstractUser):
     # Sobrescribimos los campos groups y user_permissions para evitar colisiones
     groups = models.ManyToManyField(
         Group,
-        related_name='usuarios',  # Cambia related_name para evitar conflicto
+        nombre_usuario='usuarios',  # Cambia related_name para evitar conflicto
         blank=True,
         help_text='Los grupos a los que pertenece el usuario.',
         verbose_name='grupos',
@@ -18,7 +18,7 @@ class Usuario(AbstractUser):
 
     user_permissions = models.ManyToManyField(
         Permission,
-        related_name='usuarios',  # Cambia related_name para evitar conflicto
+        nombre_usuario='usuarios',  # Cambia related_name para evitar conflicto
         blank=True,
         help_text='Permisos específicos para este usuario.',
         verbose_name='permisos de usuario',
