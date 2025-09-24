@@ -43,7 +43,7 @@ class Reto(models.Model):
 class Respuesta(models.Model):
     id = models.AutoField(primary_key=True)
     res_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
-    res_reto = models.ForeignKey(Reto, on_delete=models.CASCADE)
+    res_reto = models.ForeignKey(Reto, on_delete=models.CASCADE) 
     respuesta_usuario = models.CharField(max_length=200)
     respuesta_correcta = models.BooleanField(default=False)
     puntaje = models.IntegerField(default=0)
