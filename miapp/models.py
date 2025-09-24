@@ -1,60 +1,73 @@
 from django.db import models
-from django.contrib.auth.models import AbstractUser, Group, Permission
+from django.contrib.auth.models import AbstractUser
 
 class Usuario(AbstractUser):
-    # Hereda campos como username, email, password, etc.
-    puntuacion_total = models.IntegerField(default=0)
-    ranking_posicion = models.IntegerField(null=True, blank=True)
-
-
-    # Sobrescribimos los campos groups y user_permissions para evitar colisiones
-    groups = models.ManyToManyField(
-        Group,
-        nombre_usuario='usuarios',  # Cambia related_name para evitar conflicto
-        blank=True,
-        help_text='Los grupos a los que pertenece el usuario.',
-        verbose_name='grupos',
-    )
-
-    user_permissions = models.ManyToManyField(
-        Permission,
-        nombre_usuario='usuarios',  # Cambia related_name para evitar conflicto
-        blank=True,
-        help_text='Permisos específicos para este usuario.',
-        verbose_name='permisos de usuario',
-    )
+    us_nombre = models.CharField(max_length=100, blank=False, null=False)
+    puntaje_total = models.IntegerField(default=0)
 
     def __str__(self):
-        return self.username
+        return f"{self.us_nombre} (@{self.username}) - Puntos: {self.puntaje_total}"
+
+class Categoria(models.Model):
+    id_categoria = models.AutoField(primary_key=True)
+    ca_nombre = models.CharField(max_length=100, unique=True)
+    descripcion = models.TextField(blank=True, null=True)
+
+    def __str__(self):
+        return self.ca_nombre
+
+class Dificultad(models.Model):
+    id_dificultad = models.AutoField(primary_key=True)
+    di_nombre = models.CharField(max_length=50, unique=True)
+    puntaje = models.IntegerField(default=10)  
+    orden = models.PositiveSmallIntegerField(default=1)
+
+    class Meta:
+        ordering = ["orden"]
+
+    def __str__(self):
+        return f"{self.di_nombre} ({self.puntaje} pts)"
 
 class Reto(models.Model):
-    DIFICULTADES = [
-        ('F', 'Fácil'),
-        ('M', 'Medio'),
-        ('D', 'Difícil'),
-    ]
-
-    titulo = models.CharField(max_length=200)
-    descripcion = models.TextField()
-    respuesta_correcta = models.TextField()
-    dificultad = models.CharField(max_length=1, choices=DIFICULTADES)
-    fecha_publicacion = models.DateTimeField(auto_now_add=True)
-    autor = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='retos')
+    id_reto = models.AutoField(primary_key=True)
+    re_dificultad = models.ForeignKey(Dificultad, on_delete=models.CASCADE)
+    re_categoria = models.ForeignKey(Categoria, on_delete=models.SET_NULL, null=True, blank=True)
+    re_nombre = models.CharField(max_length=200)
+    re_descripcion = models.TextField()
+    respuesta_reto = models.CharField(max_length=200)
+    intentos = models.IntegerField(default=3)
 
     def __str__(self):
-        return self.titulo
-
+        return f"{self.re_nombre} ({self.re_dificultad})"
 
 class Respuesta(models.Model):
-    reto = models.ForeignKey(Reto, on_delete=models.CASCADE, related_name='respuestas')
-    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE, related_name='respuestas')
-    respuesta_usuario = models.TextField()
-    es_correcta = models.BooleanField(default=False)
-    fecha_respuesta = models.DateTimeField(auto_now_add=True)
-    puntos_obtenidos = models.IntegerField(default=0)
+    id = models.AutoField(primary_key=True)
+    res_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    res_reto = models.ForeignKey(Reto, on_delete=models.CASCADE)
+    respuesta_usuario = models.CharField(max_length=200)
+    respuesta_correcta = models.BooleanField(default=False)
+    puntaje = models.IntegerField(default=0)
+    intento = models.PositiveSmallIntegerField(default=1)
 
     def __str__(self):
-        return f"Respuesta de {self.usuario} al reto {self.reto}"
+        estado = "Correcta" if self.respuesta_correcta else "Incorrecta"
+        return f"{self.res_usuario.us_nombre} - {self.res_reto.re_nombre} - {estado}"
 
+class HistorialPuntaje(models.Model):
+    id = models.AutoField(primary_key=True)
+    usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    puntos = models.IntegerField()
 
+    def __str__(self):
+        return f"{self.usuario.us_nombre} +{self.puntos}"
 
+class Ranking(models.Model):
+    id_ranking = models.AutoField(primary_key=True)
+    ra_usuario = models.ForeignKey(Usuario, on_delete=models.CASCADE)
+    puntaje = models.IntegerField()
+
+    class Meta:
+        ordering = ["-puntaje"]
+
+    def __str__(self):
+        return f"Ranking {self.ra_usuario.us_nombre}: {self.puntaje} pts"
